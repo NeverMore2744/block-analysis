@@ -20,6 +20,26 @@ foo <- function(df) {
   dt
 }
 
+foo_attr <- function(df, attr) {
+  df$days <- df$maxTimeInMin %/% 1440 - df$minTimeInMin %/% 1440 + 1;
+  df$mins <- df$maxTimeInMin - df$minTimeInMin + 1;
+  df <- df[df$days <= 1, ];
+
+  print(max(df$mins)); 
+  print(min(df$mins));
+  print(quantile(df$mins, c(0.25, 0.5, 0.75, 0.9)));
+  print(nrow(df[df$mins <= 240, ]));
+
+  attr_short <- attr[match(df$log, attr$log), ];
+  print(paste0("wss: ", sum(as.numeric(attr_short$wss)) / sum(as.numeric(attr$wss))));
+  print(paste0("tab: ", sum(as.numeric(attr_short$trb + attr_short$twb)) / sum(as.numeric(attr$trb + attr$twb))));
+#  print(attr_short);
+}
+
+foo_attr(x1, read.table("../processed/bs/ali_attr.data", 
+      header = T, stringsAsFactors = F)); 
+q()
+
 ali <- foo(x1);
 ali$type <- "AliCloud";
 tc <- foo(x2);

@@ -5,6 +5,8 @@ myheight <- 1.8
 
 cdf_file <- "../processed/reqsz/a2_req_size_cdf.data";
 box_file <- "../processed/reqsz/a2_req_size_box.data";
+box_file_md <- "../processed/reqsz/a2_req_size_box_md.data";
+box_file_75th <- "../processed/reqsz/a2_req_size_box_75th.data";
 
 if (!file.exists(cdf_file)) {
   ali_rs <- read.table("../processed/reqsz/ali_overall_request_size.data", 
@@ -79,6 +81,106 @@ if (!file.exists(box_file)) {
   data$y <- round(data$y, digits = 3);
   data <- clear_cdf_with_types(data);
   write.table(data, file = box_file, quote = F, row.names = F, col.names = T);
+}
+
+if (!file.exists(box_file_md)) {
+  tc_rs <- read.table("../processed/reqsz/tc_request_size.data", header = T, stringsAsFactors = F);
+  tc_rs$num <- tc_rs$read_num + tc_rs$write_num;
+  msr_rs <- read.table("../processed/reqsz/msr_request_size.data", header = T, stringsAsFactors = F);
+  msr_rs$num <- msr_rs$read_num + msr_rs$write_num;
+  ali_rs <- read.table("../processed/reqsz/ali_request_size.data", header = T, stringsAsFactors = F);
+  ali_rs$num <- ali_rs$read_num + ali_rs$write_num;
+
+  proc2 <- function(data_rs, val_col, cnt_col, cuts, type) {
+    ret_md <- c();
+
+    tmp <- data_rs[, val_col] %% 512;  # Check
+    if (length(unique(tmp)) > 1) {
+      print(paste0("Something wrong here: unique(tmp) = ", unique(tmp), 
+            " type = ", type));
+    }
+
+    for (lg in unique(data_rs$log)) {
+      t <- subset(data_rs, log == lg);
+      mn <- new_mean(t, val_col, cnt_col); 
+      if (is.nan(mn)) {
+        next
+      }
+
+      ret_md <- c(ret_md, new_percentiles(t, val_col, cnt_col, 0.5));
+    }
+
+    print(paste0("Type ", type, " median deviation: (P25) ", 
+          quantile(ret_md, 0.25) / 1024, " - (P75) ", 
+          quantile(ret_md, 0.75) / 1024, " KiB"));
+
+    dt <- toCdfFormat(ret_md, 0, 1024 * 1024, 2000); 
+    dt$type <- type;
+    dt 
+  }
+
+  dataT3 <- proc2(ali_rs, "size", "read_num", (1:19)/20, "C.R"); 
+  dataT6 <- proc2(ali_rs, "size", "write_num", (1:19)/20, "C.W"); 
+  dataT1 <- proc2(tc_rs, "size", "read_num", (1:19)/20, "T.R");
+  dataT4 <- proc2(tc_rs, "size", "write_num", (1:19)/20, "T.W"); 
+  dataT2 <- proc2(msr_rs, "size", "read_num", (1:19)/20, "M.R"); 
+  dataT5 <- proc2(msr_rs, "size", "write_num", (1:19)/20, "M.W"); 
+  data <- rbind(dataT1, dataT4, dataT2, dataT5, dataT3, dataT6);
+  data$x <- round(data$x, digits = 3);
+  data$y <- round(data$y, digits = 3);
+  data <- clear_cdf_with_types(data);
+  write.table(data, file = box_file_md, quote = F, row.names = F, col.names = T);
+}
+
+if (!file.exists(box_file_75th)) {
+  tc_rs <- read.table("../processed/reqsz/tc_request_size.data", header = T, stringsAsFactors = F);
+  tc_rs$num <- tc_rs$read_num + tc_rs$write_num;
+  msr_rs <- read.table("../processed/reqsz/msr_request_size.data", header = T, stringsAsFactors = F);
+  msr_rs$num <- msr_rs$read_num + msr_rs$write_num;
+  ali_rs <- read.table("../processed/reqsz/ali_request_size.data", header = T, stringsAsFactors = F);
+  ali_rs$num <- ali_rs$read_num + ali_rs$write_num;
+
+  proc2 <- function(data_rs, val_col, cnt_col, cuts, type) {
+    ret_75th <- c();
+
+    tmp <- data_rs[, val_col] %% 512;  # Check
+    if (length(unique(tmp)) > 1) {
+      print(paste0("Something wrong here: unique(tmp) = ", unique(tmp), 
+            " type = ", type));
+    }
+
+    for (lg in unique(data_rs$log)) {
+      t <- subset(data_rs, log == lg);
+      mn <- new_mean(t, val_col, cnt_col); 
+      if (is.nan(mn)) {
+        next
+      }
+
+      ret_75th <- c(ret_75th, new_percentiles(t, val_col, cnt_col, 0.75));
+    }
+
+    print(quantile(ret_75th, c(0.25, 0.5, 0.75)));
+
+    print(paste0("Type ", type, " 75th percentiles: ", 
+          min(ret_75th) / 1024, " - ", 
+          max(ret_75th) / 1024, " KiB"));
+
+    dt <- toCdfFormat(ret_75th, 0, 1024 * 1024, 2000); 
+    dt$type <- type;
+    dt 
+  }
+
+  dataT3 <- proc2(ali_rs, "size", "read_num", (1:19)/20, "C.R"); 
+  dataT6 <- proc2(ali_rs, "size", "write_num", (1:19)/20, "C.W"); 
+  dataT1 <- proc2(tc_rs, "size", "read_num", (1:19)/20, "T.R");
+  dataT4 <- proc2(tc_rs, "size", "write_num", (1:19)/20, "T.W"); 
+  dataT2 <- proc2(msr_rs, "size", "read_num", (1:19)/20, "M.R"); 
+  dataT5 <- proc2(msr_rs, "size", "write_num", (1:19)/20, "M.W"); 
+  data <- rbind(dataT1, dataT4, dataT2, dataT5, dataT3, dataT6);
+  data$x <- round(data$x, digits = 3);
+  data$y <- round(data$y, digits = 3);
+  data <- clear_cdf_with_types(data);
+  write.table(data, file = box_file_75th, quote = F, row.names = F, col.names = T);
 }
 
 if (!draw_figures) {

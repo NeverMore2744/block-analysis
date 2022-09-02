@@ -7,6 +7,8 @@ ali_attr$capInGb <- ali_cap[match(ali_attr$log, ali_cap$log), "capacityInGiB"];
 
 # In KiB
 ali_attr$reqsize <- (ali_attr$twb + ali_attr$trb) / (ali_attr$numRReq + ali_attr$numWReq) * 4;
+ali_attr$rreqsize <- (ali_attr$trb) / (ali_attr$numRReq + 0.000000001) * 4;
+ali_attr$wreqsize <- (ali_attr$twb) / (ali_attr$numWReq + 0.000000001) * 4;
 
 data <- ali_attr;
 
@@ -20,7 +22,11 @@ types <- c("40-49 GiB", "50-99 GiB", "100-199 GiB", "200-5000 GiB");
 for (tp in types) {
   subs <- subset(data, type == tp);
   print(paste0("Type ", tp, " volumes: ", nrow(subs), 
-      " WSS-to-request-size P50 ", quantile(subs$reqsize, 0.5), " KiB"));
+      " request-size P50 ", quantile(subs$reqsize, 0.5), " KiB"));
+  print(paste0("Type ", tp, " volumes: ", nrow(subs), 
+      " write-request-size P50 ", quantile(subs$wreqsize, 0.5), " KiB"));
+  print(paste0("Type ", tp, " volumes: ", nrow(subs), 
+      " read-request-size P50 ", quantile(subs$rreqsize, 0.5), " KiB"));
 }
 
 ############### Draw figures

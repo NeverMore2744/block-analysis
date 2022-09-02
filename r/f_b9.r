@@ -46,12 +46,23 @@ write.table(df, file = "../processed/randomness/b9_cdf.data",
 
 new_df <- NULL;
 
+coef_input <- NULL;
+
 foo <- function(df_rand, name, tp) {
   attr <- read.table(paste0("../processed/bs/", name, 
         "_attr.data"), header = T, stringsAsFactors = F);
   attr <- attr[order(-(attr$trb + attr$twb)), ];
+
+## Correlation coefficient
+  attr$tab <- attr$trb + attr$twb;
   attr <- attr[1:10, ];
   df_rand <- df_rand[match(attr$log, df_rand$log), ];
+  df_rand$traffic <- attr$tab[match(df_rand$log, attr$log)];
+  print("Top-10 volumes (coefficient)");
+  print(cor.test(df_rand$traffic, df_rand$randomness, 
+        method = c("spearman")));
+
+  coef_input <- rbind(coef_input, df_rand);
 
   print(paste0(name, " top-10 randomness: ", 
         round(min(df_rand$randomness) * 100, digits = 4), "-",
