@@ -18,7 +18,6 @@ for (pf in prefices) {
     tmp <- sum(as.numeric(x1[, tp])) / 1000000;
   }
 }
-q()
 
 process <- function(data, tp) {
   names(data) <- c("x", "y");

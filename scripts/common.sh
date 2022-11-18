@@ -3,12 +3,14 @@
 # Modify the paths of the analysed traces
 ALI_DOWNLOAD_FILE_PATH=""  # The csv trace file you downloaded from the Alibaba GitHub
 TENCENT_DOWNLOAD_DIR_PATH="" # The directory you downloaded from the SNIA, containing tgz files
+MSRC_DOWNLOAD_DIR_PATH=""    # The directory you dwonloaded from the SNIA, containing two tar files
 
-TENCENTCLOUD_PATH="/sdc_data/tencent_trace/"
-TENCENTCLOUD_FILE_PATH="./etc/tc_traces"
-ALICLOUD_PATH="/sdb_data/ali_trace/"
+ALICLOUD_PATH=""        # The directory for storing final AliCloud trace files
+TENCENTCLOUD_PATH=""    # The directory for storing final TencentCloud trace files
+MSRC_PATH=""            # The directory for storing final MSRC trace files
+
 ALICLOUD_FILE_PATH="./etc/ali_traces"
-MSRC_PATH="/sdb_data/MSR-Cambridge/"
+TENCENTCLOUD_FILE_PATH="./etc/tc_traces"
 MSRC_FILE_PATH="./etc/msr_traces"
 
 trace_prefix=("ali" "tc" "msr");

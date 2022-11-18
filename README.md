@@ -22,7 +22,8 @@ When we run the analysis, these directories can be created:
 * Download the AliCloud traces from https://github.com/alibaba/block-traces
 * Download the TencentCloud traces from http://iotta.snia.org/traces/27917 
 * Download the MSRC traces from http://iotta.snia.org/traces/388
-* Modify common.sh to specify the paths of AliCloud, TencentCloud, and MSRC traces
+* Modify `scripts/common.sh` to specify the paths of AliCloud, TencentCloud, and MSRC traces
+  * And also the paths of storing the final traces files (separated by volumes)
 * Run `prepare.sh` to:
   * split the AliCloud and TencentCloud traces into csv files, divided by the volume names
   * check whether all the trace files are ready
